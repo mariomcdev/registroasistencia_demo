@@ -1,0 +1,123 @@
+/* Estilos globales y personalizaciones del tema oscuro empresarial */
+* {
+    transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e2f;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3b3b54;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #52527a;
+}
+
+body {
+    background-color: #0b0d15;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+}
+
+#loginContainer {
+    background: radial-gradient(circle at 10% 20%, #0a0c15, #05060a);
+}
+
+.sidebar-link.active {
+    background: #2c2f3f;
+    border-left: 3px solid #3b82f6;
+    color: white;
+}
+
+.glass-nav {
+    background: rgba(18, 20, 29, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #252a3a;
+}
+
+.card-dark {
+    background: #13151f;
+    border: 1px solid #252a3a;
+    border-radius: 1rem;
+}
+
+.btn-primary {
+    background: #2563eb;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.input-dark {
+    background-color: #0f111a;
+    border: 1px solid #2d3246;
+    color: #e2e8f0;
+}
+
+.input-dark:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+    .sidebar-desktop { display: none; }
+    .mobile-nav-bar { display: flex; }
+}
+
+@media (min-width: 769px) {
+    .mobile-nav-bar { display: none; }
+}
+
+/* Estilos para la tabla de reportes */
+.reportes-filtros {
+    background: rgba(19, 21, 31, 0.6);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+.reportes-tabla {
+    overflow-x: auto;
+}
+
+.reportes-tabla table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.reportes-tabla th,
+.reportes-tabla td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #2d3246;
+}
+
+.reportes-tabla th {
+    background: #1a1c2a;
+    color: #93c5fd;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.reportes-tabla tr:hover {
+    background: rgba(37, 99, 235, 0.1);
+}

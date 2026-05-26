@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Enterprise Dashboard | Nexus Core</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jsPDF y autoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="text-gray-200 antialiased">
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="loginContainer" class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md card-dark p-8 shadow-2xl">
+            <div class="flex justify-center mb-6">
+                <div class="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-center mb-2 tracking-tight">Nexus Enterprise</h2>
+            <p class="text-center text-gray-400 text-sm mb-8">Acceso seguro al panel de control</p>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Correo electrónico</label>
+                    <input type="email" id="loginEmail" required class="input-dark w-full px-4 py-2.5 rounded-xl" placeholder="admin@empresa.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
+                    <input type="password" id="loginPassword" required class="input-dark w-full px-4 py-2.5 rounded-xl" placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary w-full py-2.5 rounded-xl font-semibold text-white shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión
+                </button>
+            </form>
+            <div id="loginError" class="mt-4 text-center text-sm text-red-400 hidden"></div>
+            <div class="mt-6 text-center text-xs text-gray-500 border-t border-gray-800 pt-5">
+                Demo: admin@demo.com / cualquier contraseña (6+ chars)
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD PRINCIPAL -->
+    <div id="appContainer" class="hidden min-h-screen flex flex-col">
+        <!-- NAVBAR -->
+        <nav class="glass-nav sticky top-0 z-20 px-4 md:px-8 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 rounded-lg p-1.5">
+                    <i class="fas fa-cube text-white text-xl"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight hidden sm:inline-block">Nexus<span class="text-blue-500">Core</span></span>
+                <span class="text-xs bg-gray-800/70 px-2 py-0.5 rounded-full ml-2">v2.0</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center text-sm text-gray-300 bg-black/20 px-3 py-1 rounded-full">
+                    <i class="fas fa-user-circle mr-2 text-blue-400"></i>
+                    <span id="userEmailNav" class="font-mono text-xs">cargando...</span>
+                </div>
+                <button id="logoutButton" class="bg-red-500/10 hover:bg-red-600/30 text-red-300 px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-red-500/20">
+                    <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">Cerrar sesión</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- SIDEBAR DESKTOP -->
+            <aside class="sidebar-desktop w-64 md:w-72 bg-[#0c0e16] border-r border-gray-800/80 flex-shrink-0 hidden md:block h-[calc(100vh-64px)] sticky top-16 overflow-y-auto">
+                <div class="p-5">
+                    <div class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-compass"></i> NAVEGACIÓN
+                    </div>
+                    <nav id="sidebarMenu" class="space-y-1.5">
+                        <a href="#" data-module="dashboard" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
+                            <i class="fas fa-tachometer-alt w-5"></i> <span>Dashboard</span>
+                        </a>
+                        <a href="#" data-module="usuarios" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
+                            <i class="fas fa-users w-5"></i> <span>Usuarios</span> <span class="text-[10px] bg-blue-600/30 px-1.5 rounded-full ml-auto">Admin</span>
+                        </a>
+                        <a href="#" data-module="marcacion" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
+                            <i class="fas fa-fingerprint w-5"></i> <span>Marcación</span> <span class="text-[10px] bg-emerald-600/30 px-1.5 rounded-full ml-auto">Empleado</span>
+                        </a>
+                        <a href="#" data-module="reportes" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
+                            <i class="fas fa-chart-simple w-5"></i> <span>Reportes</span>
+                        </a>
+                    </nav>
+                    <div class="mt-8 pt-6 border-t border-gray-800/60 text-[11px] text-gray-500">
+                        <i class="fas fa-shield-alt mr-1"></i> Seguridad empresarial
+                    </div>
+                </div>
+            </aside>
+
+            <!-- NAVEGACIÓN MÓVIL -->
+            <div class="mobile-nav-bar md:hidden fixed bottom-5 left-0 right-0 z-30 flex justify-center">
+                <div class="bg-[#11131e] backdrop-blur-md rounded-2xl shadow-2xl flex justify-around w-11/12 p-2 border border-gray-700/60">
+                    <button data-module="dashboard" class="mobile-nav-btn flex flex-col items-center p-2 rounded-xl"><i class="fas fa-tachometer-alt text-lg"></i><span class="text-[10px]">Panel</span></button>
+                    <button data-module="usuarios" class="mobile-nav-btn flex flex-col items-center p-2 rounded-xl"><i class="fas fa-users text-lg"></i><span class="text-[10px]">Usuarios</span></button>
+                    <button data-module="marcacion" class="mobile-nav-btn flex flex-col items-center p-2 rounded-xl"><i class="fas fa-fingerprint text-lg"></i><span class="text-[10px]">Marcar</span></button>
+                    <button data-module="reportes" class="mobile-nav-btn flex flex-col items-center p-2 rounded-xl"><i class="fas fa-chart-simple text-lg"></i><span class="text-[10px]">Reportes</span></button>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <main class="flex-1 overflow-y-auto p-5 md:p-8 pb-24 md:pb-8">
+                <div id="dynamicView" class="animate-fade-in">
+                    <div class="flex justify-center items-center h-64">
+                        <div class="animate-pulse flex flex-col items-center">
+                            <i class="fas fa-spinner fa-spin text-3xl text-blue-400"></i>
+                            <span class="mt-3 text-gray-400">Cargando módulo...</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL PARA CRUD DE EMPLEADOS -->
+    <div id="employeeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="card-dark w-full max-w-md p-6">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4">Nuevo Empleado</h3>
+            <form id="employeeForm">
+                <input type="hidden" id="employeeId">
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Nombre completo</label>
+                    <input type="text" id="empNombre" required class="input-dark w-full px-3 py-2 rounded-lg">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Email</label>
+                    <input type="email" id="empEmail" required class="input-dark w-full px-3 py-2 rounded-lg">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Puesto</label>
+                    <input type="text" id="empPuesto" required class="input-dark w-full px-3 py-2 rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Departamento</label>
+                    <input type="text" id="empDepto" required class="input-dark w-full px-3 py-2 rounded-lg">
+                </div>
+                <div class="flex gap-3 justify-end">
+                    <button type="button" id="closeModalBtn" class="px-4 py-2 bg-gray-700 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
