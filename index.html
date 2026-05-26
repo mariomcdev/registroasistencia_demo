@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Asistencia | Sistema de Marcación</title>
+    <!-- Tailwind CSS + Font Awesome + Supabase JS + jsPDF + autoTable -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <!-- VISTA 1: MÓDULO DE MARCACIÓN PÚBLICA -->
+    <div id="publicView" class="w-full max-w-2xl fade-in">
+        <div class="card-glass rounded-2xl p-6 md:p-10 shadow-2xl text-center">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-500/20 p-2 rounded-xl"><i class="fas fa-fingerprint text-3xl text-sky-400"></i></div>
+                    <span class="font-bold text-xl tracking-tight">Nexus<span class="text-sky-400">Time</span></span>
+                </div>
+                <button id="goToAdminBtn" class="text-xs bg-gray-800/50 hover:bg-gray-700 px-3 py-1.5 rounded-full transition flex items-center gap-1">
+                    <i class="fas fa-user-shield"></i> Panel Admin
+                </button>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mt-4 bg-gradient-to-r from-white to-sky-300 bg-clip-text text-transparent">Marcación Rápida</h2>
+            <p class="text-gray-400 mt-2 mb-8">Ingresa tu DNI para registrar entrada o salida</p>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 text-left mb-1">DNI (solo números)</label>
+                    <input type="text" id="dniInput" class="input-modern w-full text-2xl py-4 px-5 rounded-xl text-center tracking-wider" placeholder="Ej: 12345678" maxlength="10" autocomplete="off">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btnEntrada" class="btn-primary py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3">
+                        <i class="fas fa-sign-in-alt text-xl"></i> MARCAR ENTRADA
+                    </button>
+                    <button id="btnSalida" class="btn-primary py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3" style="background: linear-gradient(105deg, #f97316, #ea580c);">
+                        <i class="fas fa-sign-out-alt text-xl"></i> MARCAR SALIDA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: LOGIN ADMINISTRATIVO -->
+    <div id="adminLoginView" class="hidden w-full max-w-md fade-in">
+        <div class="card-glass rounded-2xl p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2"><i class="fas fa-lock text-sky-400"></i><span class="font-bold">Acceso Administrador</span></div>
+                <button id="backToPublicFromLogin" class="text-xs text-gray-400 hover:text-white transition"><i class="fas fa-arrow-left"></i> Volver</button>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Iniciar Sesión</h2>
+            <p class="text-gray-400 text-sm mb-6">Ingresa tus credenciales de Supabase Auth</p>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Correo electrónico</label>
+                    <input type="email" id="adminEmail" required class="input-modern w-full px-4 py-2.5 rounded-lg" placeholder="admin@empresa.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-1">Contraseña</label>
+                    <input type="password" id="adminPassword" required class="input-modern w-full px-4 py-2.5 rounded-lg" placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary w-full py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Acceder</button>
+                <div id="loginErrorMsg" class="mt-3 text-red-400 text-xs text-center hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VISTA 3: PANEL ADMIN (Dashboard + Reportería) -->
+    <div id="adminPanelView" class="hidden w-full max-w-7xl fade-in">
+        <div class="card-glass rounded-2xl p-6 md:p-8">
+            <div class="flex flex-wrap justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-chart-line text-3xl text-sky-400"></i>
+                    <h2 class="text-2xl font-bold">Panel de Administración</h2>
+                </div>
+                <button id="logoutAdminBtn" class="bg-red-500/20 hover:bg-red-600/30 text-red-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+            </div>
+
+            <!-- Estadísticas rápidas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <div class="bg-gray-800/40 p-4 rounded-xl flex justify-between items-center">
+                    <span><i class="fas fa-users"></i> Total Empleados</span>
+                    <span id="totalEmpleados" class="text-2xl font-bold">--</span>
+                </div>
+                <div class="bg-gray-800/40 p-4 rounded-xl flex justify-between items-center">
+                    <span><i class="fas fa-calendar-day"></i> Marcaciones Hoy</span>
+                    <span id="totalHoy" class="text-2xl font-bold">--</span>
+                </div>
+                <div class="bg-gray-800/40 p-4 rounded-xl flex justify-between items-center">
+                    <span><i class="fas fa-clock"></i> Última sincro</span>
+                    <span id="lastSync" class="text-sm">--:--</span>
+                </div>
+            </div>
+
+            <!-- Filtros para Reportes -->
+            <div class="bg-gray-800/30 rounded-xl p-5 mb-6">
+                <h3 class="text-lg font-semibold mb-4"><i class="fas fa-filter text-emerald-400"></i> Filtros de Reporte</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm mb-1">Seleccionar Empleado (DNI)</label>
+                        <select id="filtroEmpleado" class="input-modern w-full px-3 py-2 rounded-lg">
+                            <option value="">Todos los empleados</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Fecha Inicio</label>
+                        <input type="date" id="fechaInicio" class="input-modern w-full px-3 py-2 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Fecha Fin</label>
+                        <input type="date" id="fechaFin" class="input-modern w-full px-3 py-2 rounded-lg">
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button id="aplicarFiltrosBtn" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg flex items-center gap-2">
+                            <i class="fas fa-search"></i> Aplicar
+                        </button>
+                        <button id="exportarPDFBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg flex items-center gap-2">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Asistencias -->
+            <div class="overflow-x-auto">
+                <h3 class="text-xl font-semibold mb-3"><i class="fas fa-table"></i> Registro de Asistencias</h3>
+                <div class="bg-gray-900/50 rounded-xl overflow-hidden">
+                    <table class="min-w-full text-sm report-table">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left">DNI</th>
+                                <th class="px-4 py-3 text-left">Empleado</th>
+                                <th class="px-4 py-3 text-left">Fecha</th>
+                                <th class="px-4 py-3 text-left">Entrada</th>
+                                <th class="px-4 py-3 text-left">Salida</th>
+                                <th class="px-4 py-3 text-left">Horas Extras</th>
+                            </tr>
+                        </thead>
+                        <tbody id="asistenciasTableBody">
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

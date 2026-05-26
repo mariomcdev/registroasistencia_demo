@@ -1,0 +1,95 @@
+/* Estilos globales y personalizaciones del tema oscuro empresarial */
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #0a0f1c 100%);
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.card-glass {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.btn-primary {
+    background: linear-gradient(105deg, #0ea5e9, #3b82f6);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(14, 165, 233, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(51, 65, 85, 0.8);
+    border: 1px solid #334155;
+}
+
+.btn-secondary:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+.input-modern {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    transition: all 0.2s;
+    color: #f1f5f9;
+}
+
+.input-modern:focus {
+    border-color: #0ea5e9;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+.alert-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    animation: slideUp 0.3s ease-out;
+    max-width: 90%;
+    width: auto;
+    text-align: center;
+    backdrop-filter: blur(8px);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.report-table th {
+    background: #1e293b;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.report-table td {
+    border-bottom: 1px solid #1e293b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-glass {
+        padding: 1.5rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
